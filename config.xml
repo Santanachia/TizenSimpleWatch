@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/SWatch" version="1.0.0" viewmodes="maximized">
-    <tizen:application id="WJR3SWhZki.SWatch" package="WJR3SWhZki" required_version="2.3.1" ambient_support="enable"/>
+<!DOCTYPE xml>
+<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="http://yourdomain/SWatch" version="1.0.0" viewmodes="maximized">
+    <tizen:application id="WJR3SWhZki.SWatch" package="WJR3SWhZki" required_version="3.0" ambient_support="enable"/>
+    <author email="santanachia@gmail.com">Marcin Bielecki</author>
     <tizen:category name="http://tizen.org/category/wearable_clock"/>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.all"/>
     <icon src="icon.png"/>
     <name>SWatch</name>
     <tizen:profile name="wearable"/>
+    <tizen:setting background-support="disable" encryption="disable" hwkey-event="enable"/>
 </widget>

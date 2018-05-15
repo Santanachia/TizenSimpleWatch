@@ -20,7 +20,8 @@
         ctxLayout,
         ctxContent,
         center,
-        watchRadius;
+        watchRadius,
+        battery = navigator.battery || navigator.webkitBattery || navigator.mozBattery;
 
     /**
      * Renders a circle with specific center, radius, and color
@@ -76,17 +77,18 @@
      * @param {string} text - the text to be placed
      * @param {number} x - the x-coordinate of the text
      * @param {number} y - the y-coordinate of the text
-     * @param {number} textSize - the size of the text in pixel
-     * @param {string} color - the color of the text
+     * @param {number} wr - 
+     * @param {number} battery - battery level
      */
-    function renderText(context, text, x, y, textSize, color) {
+    function renderText(context, text, x, y, wr, battery) {
         context.save();
         context.beginPath();
-        context.font = textSize + "px Courier";
+        context.font = "25px Courier";
         context.textAlign = "center";
         context.textBaseline = "middle";
-        context.fillStyle = color;
-        context.fillText(text, x, y);
+        context.fillStyle = '#999';
+        context.fillText(text, x, y + wr);
+        context.fillText(battery + '%', x, y - wr);
         context.closePath();
         context.restore();
     }
@@ -126,8 +128,6 @@
             angle = (j - 3) * (Math.PI * 2) / 12;
             renderNeedle(ctxLayout, angle, 0.7, 0.945, 10, "#c4c4c4");
         }
-
-        //renderText(ctxLayout, "TIZEN WATCH", center.x, center.y - (watchRadius * 0.4), 25, "#999999");
     }
 
     /**
@@ -138,8 +138,7 @@
         var datetime = tizen.time.getCurrentDateTime(),
             hour = datetime.getHours(),
             minute = datetime.getMinutes(),
-            second = datetime.getSeconds(),
-            date = datetime.getDate();
+            second = datetime.getSeconds();
 
         // Clear canvas
         ctxContent.clearRect(0, 0, ctxContent.canvas.width, ctxContent.canvas.height);
@@ -167,7 +166,7 @@
         renderCircle(ctxContent, center, 2, "#454545");
 
         // Draw the text for date
-        renderText(ctxContent, date, center.x, center.y + (watchRadius * 0.5), 25, "#999999");
+        renderText(ctxContent, datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(), center.x, center.y, watchRadius * 0.5, Math.floor(battery.level * 100));
     }
 
     /**
