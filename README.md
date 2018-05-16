@@ -1,1 +1,1 @@
-# TizenSimpleWatch
+# SimpleWatch
