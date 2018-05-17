@@ -1,13 +1,84 @@
 
+var	battery;
+    
+/**
+ * Updates air pollution icon, status and text.
+ * @private
+ */
+function updateAirPolution(lat, lon) {
+    /**
+     * xmlHttp - XMLHttpRequest object for get information about air pollution
+     */
+    var xmlHttp = new XMLHttpRequest(),
+    	ARR_COLOR = ['', '#0c0', '#6c0', '#ff0', '#f90', 'red', 'brown'],
+        airPollutionInform;
+
+    /**
+     * NearestSensorMeasurements {
+		  address (Address, optional): Sensor's address,
+		  airQualityIndex (number): Common Air Quality Index (CAQI). http://www.airqualitynow.eu/about_indices_definition.php,
+		  distance (number, optional): Distance,
+		  id (integer, optional): ID,
+		  location (Coordinates, optional): Location,
+		  measurementTime (string, optional): MeasurementTime,
+		  name (string, optional): Name,
+		  pm10 (number, optional): PM10,
+		  pm25 (number, optional): PM2.5,
+		  pollutionLevel (integer, optional): Pollution level based on CAQI value. Possible values: [0 to 6]. 0 - unknown, 1 - best air, 6 - worst.,
+		  vendor (string, optional): Vendor
+		}
+		Address {
+		  country (string, optional),
+		  locality (string, optional),
+		  route (string, optional),
+		  streetNumber (string, optional)
+		}
+		Coordinates {
+		  latitude (number): Latitude component of location.,
+		  longitude (number): Longitude component of location.
+		}
+     */
+    xmlHttp.open('GET', 'https://airapi.airly.eu/v1/nearestSensor/measurements?latitude=' + lat + '&longitude=' + lon + '&maxDistance=1000');
+    xmlHttp.setRequestHeader('apikey', 'wfxBXm5iQvmM5S3NaQ69PFDqfQ0Yfm91');
+    xmlHttp.onreadystatechange = function() {
+        // Checks responseXML isn't empty
+        if (xmlHttp.response) {
+            airPollutionInform = JSON.parse(xmlHttp.responseText);
+            console.log(airPollutionInform);
+            document.querySelector("#air-leaf").style.fill = ARR_COLOR[airPollutionInform.pollutionLevel];
+            document.querySelector("#air-text").innerHTML = Math.round(airPollutionInform.airQualityIndex) + ' CAQI';
+        }
+        else {
+        	console.error('connection error');
+        	console.log(xmlHttp);
+        }
+    };
+
+    xmlHttp.send();
+}
+
+/**
+ * Updates battery icon and text.
+ * @private
+ */
+function updateBattery() {
+    var elBatteryIcon = document.querySelector("#battery-icon"),
+        elBatteryText = document.querySelector("#battery-text"),
+        ARR_COLOR = ["red", "orange", "yellow", "green", "blue", "blue"],
+        batteryLevel = Math.floor(battery.level * 100),
+        batteryGrade = Math.floor(batteryLevel / 20),
+        statusColor = ARR_COLOR[batteryGrade];
+
+    elBatteryIcon.style.backgroundImage = "url('./image/color_status/battery_icon_" + statusColor + ".png')";
+    elBatteryText.innerHTML = batteryLevel + "%";
+}
+    
 (function() {
     var canvasLayout, canvasContent,
         ctxLayout, ctxContent,
         center, watchRadius,
         bgLColor, bgDColor, txtColor,
-        ambient,
-        ARR_COLOR = ["red", "orange", "yellow", "green", "blue", "blue"],
-        URL_AIR_POLLUTION_DATA = "./data/airPollutionData.xml",
-        battery;
+        ambient;
 
     /**
      * Renders a circle with specific center, radius, and color
@@ -170,69 +241,6 @@
             document.querySelector(element2).style.display = "block";
         }
     }
-    
-    /**
-     * Updates air pollution icon, status and text.
-     * @private
-     */
-    function updateAirPolution() {
-        /**
-         * xmlHttp - XMLHttpRequest object for get information about air pollution
-         */
-        var xmlHttp = new XMLHttpRequest(),
-            airPollutionInform,
-            elAirPollText = document.querySelector("#air-text"),
-            airPollLevel,
-            airPollGrade;
-
-        xmlHttp.open("GET", URL_AIR_POLLUTION_DATA, false);
-        xmlHttp.onreadystatechange = function() {
-            // Checks responseXML isn't empty
-            if (xmlHttp.responseXML) {
-                airPollutionInform = xmlHttp.responseXML;
-                // Gets air pollution level from pm10value node in responseXML
-                airPollLevel = airPollutionInform.getElementsByTagName("pm10Value")[0].childNodes[0].nodeValue;
-                elAirPollText.innerHTML = airPollLevel;
-
-                if (airPollLevel === "-") {
-                    airPollGrade = 4;
-                } else {
-                    elAirPollText.innerHTML += "AQI";
-                    if (airPollLevel < 50) {
-                        airPollGrade = 4;
-                    } else if (airPollLevel < 150) {
-                        airPollGrade = 3;
-                    } else if (airPollLevel < 200) {
-                        airPollGrade = 2;
-                    } else if (airPollLevel < 300) {
-                        airPollGrade = 1;
-                    } else {
-                        airPollGrade = 0;
-                    }
-                }
-
-                document.querySelector("#air-leaf").style.fill = ARR_COLOR[airPollGrade];
-            }
-            else {}
-        };
-
-        xmlHttp.send();
-    }
-
-    /**
-     * Updates battery icon and text.
-     * @private
-     */
-    function updateBattery() {
-        var elBatteryIcon = document.querySelector("#battery-icon"),
-            elBatteryText = document.querySelector("#battery-text"),
-            batteryLevel = Math.floor(battery.level * 100),
-            batteryGrade = Math.floor(batteryLevel / 20),
-            statusColor = ARR_COLOR[batteryGrade];
-
-        elBatteryIcon.style.backgroundImage = "url('./image/color_status/battery_icon_" + statusColor + ".png')";
-        elBatteryText.innerHTML = batteryLevel + "%";
-    }
 
     /**
      * Set default variables
@@ -317,7 +325,7 @@
         // Draw the basic layout and the content of the watch at the beginning
         drawWatchLayout();
         drawWatchContent();
-//        updateAirPolution();
+        updateAirPolution(52.208399, 20.9571408);
         updateBattery();
 
         // Update the content of the watch every second

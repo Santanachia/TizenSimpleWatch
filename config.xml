@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xml>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/SWatch" version="1.0.3" viewmodes="maximized">
-    <tizen:application id="WJR3SWhZki.SWatch" package="WJR3SWhZki" required_version="3.0" ambient_support="enable"/>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/SWatch" version="1.0.4" viewmodes="maximized">
+    <access origin="https://airapi.airly.eu" subdomains="true"></access>
+    <tizen:application id="WJR3SWhZki.SWatch" package="WJR3SWhZki" required_version="3.0" ambient_support="disable"/>
     <author email="santanachia@gmail.com">Marcin Bielecki</author>
     <tizen:category name="http://tizen.org/category/wearable_clock"/>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.all"/>
     <icon src="icon.png"/>
     <name>SWatch</name>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/telephony"/>
     <tizen:profile name="wearable"/>
     <tizen:setting background-support="disable" encryption="disable" hwkey-event="enable"/>
