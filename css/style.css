@@ -46,19 +46,6 @@ html, body {
 
 /*-------BATTERY-------*/
 
-#battery-indicator {
-    top: 114px;
-    left: 200px;
-    background-image: url('../image/status_indicator.png');
-    z-index: 0;
-}
-
-#battery-status {
-    top: 114px;
-    left: 200px;
-    z-index: 1;
-}
-
 #battery-icon {
     top: 122px;
     left: 208px;
@@ -71,20 +58,15 @@ html, body {
     z-index: 0;
 }
 
+#battery-icon-e {display: block}
+#battery-icon-0 {display: none}
+#battery-icon-1 {display: none}
+#battery-icon-2 {display: none}
+#battery-icon-3 {display: none}
+#battery-icon-4 {display: none}
+#battery-icon-c {display: none}
+
 /*-------AIR-------*/
-
-#air-indicator {
-    top: 114px;
-    left: 72px;
-    background-image: url('../image/status_indicator.png');
-    z-index: 0;
-}
-
-#air-status {
-    top: 114px;
-    left: 72px;
-    z-index: 1;
-}
 
 #air-icon {
     top: 122px;

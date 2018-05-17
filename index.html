@@ -2,29 +2,37 @@
 <html>
 
 	<head>
-	    <meta charset="utf-8" />
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-	    <meta name="description" content="Simple Watch" />
-	    <title>Simple Watch</title>
-	    <link rel="stylesheet" type="text/css" href="css/style.css" />
-	    <script src="js/app.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple Watch" />
+    <title>Simple Watch</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="js/app.js"></script>
 	</head>
 	
 	<body>
-	    <div id="container">
-	        <canvas id="canvas-layout"></canvas>
-	        <canvas id="canvas-content"></canvas>
-	
-	        <div id="body-battery">
-	            <div id="battery-text" class="info-text"></div>
-	            <div id="battery-icon" class="info-icon"></div>
-	        </div>
-	
-	        <div id="body-air">
-	            <div id="air-text" class="info-text"></div>
-	            <div id="air-icon" class="info-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="72" height="72" ><path id="air-leaf" xmlns="http://www.w3.org/2000/svg" d="M546.2 9.7c-5.6-12.5-21.6-13-28.3-1.2C486.9 62.4 431.4 96 368 96h-80C182 96 96 182 96 288c0 7 .8 13.7 1.5 20.5C161.3 262.8 253.4 224 384 224c8.8 0 16 7.2 16 16s-7.2 16-16 16C132.6 256 26 410.1 2.4 468c-6.6 16.3 1.2 34.9 17.5 41.6 16.4 6.8 35-1.1 41.8-17.3 1.5-3.6 20.9-47.9 71.9-90.6 32.4 43.9 94 85.8 174.9 77.2C465.5 467.5 576 326.7 576 154.3c0-50.2-10.8-102.2-29.8-144.6z" /></svg></div>
-	        </div>
-	    </div>
+    <div id="container">
+       <canvas id="canvas-layout"></canvas>
+       <canvas id="canvas-content"></canvas>
+
+       <div id="body-battery">
+          <div id="battery-text" class="info-text"></div>
+          <div id="battery-icon" class="info-icon">
+            <svg id="battery-icon-e" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:#c4c4c4" d="M291.843 352l47.483 64H48c-26.51 0-48-21.49-48-48V144c0-26.51 21.49-48 48-48h53.907l47.484 64H64v192h227.843zM640 184v144c0 13.255-10.745 24-24 24h-8v16c0 26.51-21.49 48-48 48h-81.676l35.941 48.442c7.852 10.583 5.638 25.528-4.945 33.38l-12.775 9.479a23.759 23.759 0 0 1-14.199 4.7c-7.297 0-14.5-3.335-19.181-9.645L125.735 47.558c-7.852-10.583-5.638-25.528 4.945-33.38L143.455 4.7A23.759 23.759 0 0 1 157.654 0c7.297 0 14.5 3.335 19.181 9.645L240.905 96H560c26.51 0 48 21.49 48 48v16h8c13.255 0 24 10.745 24 24zm-64 40h-32v-64H288.389L430.84 352H544v-64h32v-64z"></path></svg>
+            <svg id="battery-icon-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:red" d="M544 160v64h32v64h-32v64H64V160h480m16-64H48c-26.51 0-48 21.49-48 48v224c0 26.51 21.49 48 48 48h512c26.51 0 48-21.49 48-48v-16h8c13.255 0 24-10.745 24-24V184c0-13.255-10.745-24-24-24h-8v-16c0-26.51-21.49-48-48-48z"/></svg>
+            <svg id="battery-icon-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:orange" d="M544 160v64h32v64h-32v64H64V160h480m16-64H48c-26.51 0-48 21.49-48 48v224c0 26.51 21.49 48 48 48h512c26.51 0 48-21.49 48-48v-16h8c13.255 0 24-10.745 24-24V184c0-13.255-10.745-24-24-24h-8v-16c0-26.51-21.49-48-48-48zm-336 96H96v128h128V192z"/></svg>
+            <svg id="battery-icon-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:yellow" d="M544 160v64h32v64h-32v64H64V160h480m16-64H48c-26.51 0-48 21.49-48 48v224c0 26.51 21.49 48 48 48h512c26.51 0 48-21.49 48-48v-16h8c13.255 0 24-10.745 24-24V184c0-13.255-10.745-24-24-24h-8v-16c0-26.51-21.49-48-48-48zm-240 96H96v128h224V192z"/></svg>
+            <svg id="battery-icon-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:green" d="M544 160v64h32v64h-32v64H64V160h480m16-64H48c-26.51 0-48 21.49-48 48v224c0 26.51 21.49 48 48 48h512c26.51 0 48-21.49 48-48v-16h8c13.255 0 24-10.745 24-24V184c0-13.255-10.745-24-24-24h-8v-16c0-26.51-21.49-48-48-48zm-144 96H96v128h320V192z"/></svg>
+            <svg id="battery-icon-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:blue" d="M544 160v64h32v64h-32v64H64V160h480m16-64H48c-26.51 0-48 21.49-48 48v224c0 26.51 21.49 48 48 48h512c26.51 0 48-21.49 48-48v-16h8c13.255 0 24-10.745 24-24V184c0-13.255-10.745-24-24-24h-8v-16c0-26.51-21.49-48-48-48zm-48 96H96v128h416V192z"/></svg>
+            <svg id="battery-icon-c" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="62" height="62" ><path style="fill:yellow" d="M64 352h178.778l-14.173 64H48c-26.51 0-48-21.49-48-48V144c0-26.51 21.49-48 48-48h115.944l-7.663 64H64v192zm364.778-160h-92.321l27.694-133.589C367.4 45.087 358.205 32 345.6 32H236.8c-9.623 0-17.76 7.792-19.031 18.225L192.171 264c-1.535 12.59 7.432 23.775 19.031 23.775h94.961l-36.847 166.382C266.44 467.443 275.728 480 287.993 480c6.68 0 13.101-3.827 16.623-10.481l140.778-245.997C452.79 209.55 443.564 192 428.778 192zM616 160h-8v-16c0-26.51-21.49-48-48-48H405.38l-9.951 48h33.349c16.112 0 31.233 5.762 43.115 16H544v64h32v64h-32v64H427.174l-36.626 64H560c26.51 0 48-21.49 48-48v-16h8c13.255 0 24-10.745 24-24V184c0-13.255-10.745-24-24-24z"></path></svg>
+          </div>
+       </div>
+
+       <div id="body-air">
+          <div id="air-text" class="info-text"></div>
+          <div id="air-icon" class="info-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="62" height="62" ><path id="air-leaf" xmlns="http://www.w3.org/2000/svg" d="M546.2 9.7c-5.6-12.5-21.6-13-28.3-1.2C486.9 62.4 431.4 96 368 96h-80C182 96 96 182 96 288c0 7 .8 13.7 1.5 20.5C161.3 262.8 253.4 224 384 224c8.8 0 16 7.2 16 16s-7.2 16-16 16C132.6 256 26 410.1 2.4 468c-6.6 16.3 1.2 34.9 17.5 41.6 16.4 6.8 35-1.1 41.8-17.3 1.5-3.6 20.9-47.9 71.9-90.6 32.4 43.9 94 85.8 174.9 77.2C465.5 467.5 576 326.7 576 154.3c0-50.2-10.8-102.2-29.8-144.6z" /></svg></div>
+       </div>
+    </div>
 	</body>
 
 </html>

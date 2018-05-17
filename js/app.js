@@ -62,15 +62,20 @@ function updateAirPolution(lat, lon) {
  * @private
  */
 function updateBattery() {
-    var elBatteryIcon = document.querySelector("#battery-icon"),
-        elBatteryText = document.querySelector("#battery-text"),
-        ARR_COLOR = ["red", "orange", "yellow", "green", "blue", "blue"],
-        batteryLevel = Math.floor(battery.level * 100),
-        batteryGrade = Math.floor(batteryLevel / 20),
-        statusColor = ARR_COLOR[batteryGrade];
+    var batteryLevel = Math.floor(battery.level * 100),
+        batteryGrade = Math.floor(batteryLevel / 20);
+    
+    document.querySelector('#battery-icon-e').style.display = 'none';
+    document.querySelector('#battery-icon-0').style.display = 'none';
+    document.querySelector('#battery-icon-1').style.display = 'none';
+    document.querySelector('#battery-icon-2').style.display = 'none';
+    document.querySelector('#battery-icon-3').style.display = 'none';
+    document.querySelector('#battery-icon-4').style.display = 'none';
+    document.querySelector('#battery-icon-c').style.display = 'none';
+    
+    document.querySelector('#battery-icon-' + batteryGrade).style.display = 'block';
 
-    elBatteryIcon.style.backgroundImage = "url('./image/color_status/battery_icon_" + statusColor + ".png')";
-    elBatteryText.innerHTML = batteryLevel + "%";
+    document.querySelector('#battery-text').innerHTML = batteryLevel + '%';
 }
     
 (function() {
@@ -334,9 +339,9 @@ function updateBattery() {
         }, 1000);
 
         // Update air pollution info every minute
-//        setInterval(function() {
-//        	updateAirPolution();
-//        }, 1000*60);
+        setInterval(function() {
+        	updateAirPolution();
+        }, 1000*60);
     }
 
     window.onload = init;

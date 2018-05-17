@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE xml>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/SWatch" version="1.0.4" viewmodes="maximized">
     <access origin="https://airapi.airly.eu" subdomains="true"></access>
     <tizen:application id="WJR3SWhZki.SWatch" package="WJR3SWhZki" required_version="3.0" ambient_support="disable"/>
