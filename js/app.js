@@ -89,13 +89,13 @@ function updateBattery() {
 	
 	if (battery.charging) {
 	    document.querySelector('#battery-icon-c').style.display = 'block';
-	    document.querySelector('#battery-text').innerHTML = LANG_JSON_DATA['charge'];
+	    document.querySelector('#battery-text').innerHTML = LANG_JSON_DATA.charge;
 	}
 	else if (0 <= battery.level) {
 	    var batteryLevel = Math.floor(battery.level * 100),
 	        batteryGrade = Math.floor(batteryLevel / 20);
 	    
-	    if (5 == batteryGrade) {
+	    if (5 === batteryGrade) {
 	    	batteryGrade = 4;
 	    }
 	    
@@ -239,6 +239,9 @@ function drawWatchContent() {
     // Draw the center circle
     renderCircle(ctxContent, center, 2, bgDColor);
 
+    // Draw the text for time
+    renderText(ctxContent, (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second, center.x, center.y - 25, watchRadius * 0.5);
+    
     // Draw the text for date
     renderText(ctxContent, datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(), center.x, center.y, watchRadius * 0.5);
 }
