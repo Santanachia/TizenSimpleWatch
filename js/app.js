@@ -1,6 +1,6 @@
 
 var	battery, AirlylastUpdate;
-var ctxLayout, ctxContent,
+var ctxLayout, ctxContent, ctxSunrise,
 	center, watchRadius,
 	bgLColor, bgDColor, txtColor;
     
@@ -48,9 +48,8 @@ function updateAirPolution() {
 		    xmlHttp.onreadystatechange = function() {
 		        // Checks responseXML isn't empty
 		        if (xmlHttp.response) {
-		        	var ARR_COLOR = ['black', '#0c0', '#6c0', '#ff0', '#f90', 'red', 'brown'],
+		        	var ARR_COLOR = ['transparent', '#0c0', '#6c0', '#ff0', '#f90', 'red', 'brown'],
 				        airPollutionInform = JSON.parse(xmlHttp.responseText);
-		            console.log(airPollutionInform);
 		            document.querySelector("#air-leaf").style.fill = ARR_COLOR[airPollutionInform.pollutionLevel];
 		            document.querySelector("#air-text").innerHTML = Math.round(airPollutionInform.airQualityIndex) + ' CAQI';
 		            AirlylastUpdate = new Date();
@@ -172,25 +171,153 @@ function renderText(context, text, x, y, wr) {
     context.restore();
 }
 
+function drawLine(ctx, options){
+	ctx.beginPath();
+	ctx.moveTo(options.start.x, options.start.y);
+	ctx.lineTo(options.end.x, options.end.y);
+	ctx.strokeStyle = 'rgba(' + options.color.join(',') + ')';
+	ctx.stroke();
+}
+
+function mixColors(color1, color2, t){
+	return [
+		(color1[0] + (color2[0] - color1[0]) * t) | 0,
+		(color1[1] + (color2[1] - color1[1]) * t) | 0,
+		(color1[2] + (color2[2] - color1[2]) * t) | 0,
+		(color1[3] + (color2[3] - color1[3]) * t)
+	];
+}
+
+/**
+ * https://jsfiddle.net/vgeu3upz/
+ * 
+ * @param ctx
+ * @param options
+ */
+function drawAngleGradient(ctx, options){
+	console.log(options)
+	var delta = options.endAngle - options.startAngle;
+	for(var angle = options.startAngle; angle < options.endAngle; angle += options.angleStep){
+		var t = (angle - options.startAngle) / delta;
+		drawLine(ctx, {
+	        start: options.center,
+	        end: {
+	    		x: options.center.x + options.radius * Math.cos(angle),
+	    		y: options.center.y + options.radius * Math.sin(angle)
+	        },
+	        color: mixColors(options.startColor, options.endColor, t)
+	    });
+	}
+}
+
+/**
+ * Draws the sunrise gradient
+ * @private
+ */
+function drawWatchSunrise() {
+	var sunlight = [255, 255, 224, 0.25];
+
+    // Clear canvas
+    ctxSunrise.clearRect(0, 0, ctxSunrise.canvas.width, ctxSunrise.canvas.height);
+    
+//	if (navigator.geolocation) {
+//        navigator.geolocation.getCurrentPosition(function(position){
+		    var xmlHttp = new XMLHttpRequest();
+		    
+		    var position = {coords: {latitude:51, longitude:21}};
+		
+		    xmlHttp.open('GET', 'https://api.sunrise-sunset.org/json?lat=' + position.coords.latitude + '&lng=' + position.coords.longitude + '&formatted=0');
+		    xmlHttp.onreadystatechange = function() {
+		        if (xmlHttp.response) {
+		        	var response = JSON.parse(xmlHttp.response),
+		        		options = {
+	        				center: center,
+	        			    radius: watchRadius,
+	        			    
+	        			    startColor: [0, 0, 0, 1.0],
+	        			    endColor: sunlight,
+	        			    
+	        			    startAngle: -Math.PI / 2 - Math.PI / 4,
+	        			    endAngle: -Math.PI / 4,
+	        			    angleStep: 0.001
+	        			},
+	        			twilight = {start: 0, end: 0},
+	        			sunrise = new Date(response.results.sunrise),
+	        			sunset = new Date(response.results.sunset);
+		        	
+		        	if ("1970-01-01T00:00:01+00:00" !== response.results.astronomical_twilight_begin) {
+		        		twilight.start = new Date(response.results.astronomical_twilight_begin);
+		        	}
+		        	else if ("1970-01-01T00:00:01+00:00" !== response.results.nautical_twilight_begin) {
+		        		twilight.start = new Date(response.results.nautical_twilight_begin);
+		        	}
+		        	else if ("1970-01-01T00:00:01+00:00" !== response.results.civil_twilight_begin) {
+		        		twilight.start = new Date(response.results.civil_twilight_begin);
+		        	}
+		        	
+		        	if ("1970-01-01T00:00:01+00:00" !== response.results.astronomical_twilight_end) {
+		        		twilight.end = new Date(response.results.astronomical_twilight_end);
+		        	}
+		        	else if ("1970-01-01T00:00:01+00:00" !== response.results.nautical_twilight_end) {
+		        		twilight.end = new Date(response.results.nautical_twilight_end);
+		        	}
+		        	else if ("1970-01-01T00:00:01+00:00" !== response.results.civil_twilight_end) {
+		        		twilight.end = new Date(response.results.civil_twilight_end);
+		        	}
+		        	twilight.start = 0 === twilight.start ? 0 : twilight.start.getHours() + twilight.start.getMinutes() / 60 + twilight.start.getSeconds() / 3600;
+				    twilight.end = 0 === twilight.end ? 0 : twilight.end.getHours() + twilight.end.getMinutes() / 60 + twilight.end.getSeconds() / 3600;
+		    		sunrise = 0 === sunrise ? 0 : sunrise.getHours() + sunrise.getMinutes() / 60 + sunrise.getSeconds() / 3600;
+    				sunset = 0 === sunset ? 0 : sunset.getHours() + sunset.getMinutes() / 60 + sunset.getSeconds() / 3600;
+		        	
+    				//sun rises
+		        	options.startAngle = Math.PI * twilight.start / 12 - Math.PI / 2;
+		        	options.endAngle = Math.PI * (sunrise - 3/60) / 12 - Math.PI / 2;
+		        	drawAngleGradient(ctxSunrise, options);
+		        	
+    				//sun shine
+		        	options.startColor = sunlight;
+    			    options.endColor = sunlight;
+		        	options.startAngle = Math.PI * sunrise / 12 - Math.PI / 2;
+		        	options.endAngle = Math.PI * sunset / 12 - Math.PI / 2;
+		        	drawAngleGradient(ctxSunrise, options);
+		        	
+    				//sun setting
+		        	options.startColor = sunlight;
+    			    options.endColor = [0, 0, 0, 1.0];
+		        	options.startAngle = Math.PI * (sunset + 3/60) / 12 - Math.PI / 2;
+		        	options.endAngle = Math.PI * twilight.end / 12 - Math.PI / 2;
+		        	drawAngleGradient(ctxSunrise, options);
+		        	
+	        		ctxSunrise.save();
+	        		ctxSunrise.beginPath();
+	        		ctxSunrise.fillStyle = 'hsl(0, 0%, 0%)';
+	        		ctxSunrise.arc(center.x, center.y, watchRadius * .95, 0, 2 * Math.PI);
+	        		ctxSunrise.fill();
+	        		ctxSunrise.closePath();
+	        		ctxSunrise.restore();
+	        		
+		        }
+		        else {
+		        	console.error('connection error');
+		        	console.log(xmlHttp);
+		        }
+		    };
+		
+		    xmlHttp.send();
+//        }, function(error){
+//        	console.log(error);
+//        }, {maximumAge: 60000});
+//    }
+}
+
 /**
  * Draws the basic layout of the watch
  * @private
  */
 function drawWatchLayout() {
-    var grd;
 
     // Clear canvas
     ctxLayout.clearRect(0, 0, ctxLayout.canvas.width, ctxLayout.canvas.height);
-
-    // Draw the background circle
-    renderCircle(ctxLayout, center, watchRadius, "#000000");
-    grd = ctxLayout.createLinearGradient(0, 0, watchRadius * 2, 0);
-    grd.addColorStop(0, "#000000");
-    grd.addColorStop(0.5, bgDColor);
-    grd.addColorStop(1, "#000000");
-    ctxLayout.fillStyle = grd;
-    renderCircle(ctxLayout, center, watchRadius * 0.945, grd);
-    renderCircle(ctxLayout, center, watchRadius * 0.7, "#000000");
 
     // Draw the dividers
     // 60 unit divider
@@ -198,9 +325,13 @@ function drawWatchLayout() {
         renderNeedle(ctxLayout, (i - 15) * (Math.PI * 2) / 60, 0.95, 1.0, 1, bgLColor);
     }
 
-    // 12 unit divider
-    for (var j = 1; j <= 12; j++) {
-        renderNeedle(ctxLayout, (j - 3) * (Math.PI * 2) / 12, 0.7, 0.945, 10, bgLColor);
+//    // 12 unit divider
+//    for (var j = 1; j <= 12; j++) {
+//        renderNeedle(ctxLayout, (j - 3) * (Math.PI * 2) / 12, 0.7, 0.945, 10, bgLColor);
+//    }
+    // 24 unit divider
+    for (var j = 1; j <= 24; j++) {
+        renderNeedle(ctxLayout, (j - 3) * (Math.PI * 2) / 24, 0.85, 0.945, 5, bgLColor);
     }
 }
 
@@ -218,7 +349,8 @@ function drawWatchContent() {
     ctxContent.clearRect(0, 0, ctxContent.canvas.width, ctxContent.canvas.height);
 
     // Draw the hour needle
-    renderNeedle(ctxContent, Math.PI * (((hour + minute / 60) / 6) - 0.5), 0, 0.50, 3, bgDColor);
+//    renderNeedle(ctxContent, Math.PI * (((hour + minute / 60) / 6) - 0.5), 0, 0.50, 3, bgDColor);
+    renderNeedle(ctxContent, Math.PI * (((hour + minute / 60) / 12) - 0.5), 0, 0.50, 3, bgDColor);
 
     // Draw the minute needle
     renderNeedle(ctxContent, Math.PI * (((minute + second / 60) / 30) - 0.5), 0, 0.70, 3, bgDColor);
@@ -270,15 +402,20 @@ function toggleElement(element1, element2) {
      */
     function setDefaultVariables() {
     	var canvasLayout = document.querySelector("#canvas-layout"),
+    		canvasSunrise = document.querySelector("#canvas-sunrise"),
     		canvasContent = document.querySelector("#canvas-content");
     	
         ctxLayout = canvasLayout.getContext("2d");
+        
+        ctxSunrise = canvasSunrise.getContext("2d");
         
         ctxContent = canvasContent.getContext("2d");
 
         // Set the canvases square
         canvasLayout.width = document.body.clientWidth;
         canvasLayout.height = canvasLayout.width;
+        canvasSunrise.width = document.body.clientWidth;
+        canvasSunrise.height = canvasSunrise.width;
         canvasContent.width = document.body.clientWidth;
         canvasContent.height = canvasContent.width;
 
@@ -338,6 +475,7 @@ function toggleElement(element1, element2) {
 
         // Draw the basic layout and the content of the watch at the beginning
         drawWatchLayout();
+        drawWatchSunrise();
         drawWatchContent();
         updateAirPolution();
         updateBattery();
@@ -349,6 +487,7 @@ function toggleElement(element1, element2) {
 
         // Update air pollution info every minute
         setInterval(function() {
+        	drawWatchSunrise();
         	updateAirPolution();
         }, 1000*60);
     }
