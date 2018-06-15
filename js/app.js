@@ -2,7 +2,7 @@
 var	battery, AirlylastUpdate;
 var ctxLayout, ctxContent, ctxSunrise,
 	center, watchRadius,
-	bgLColor, bgDColor, txtColor;
+	bgLColor, bgDColor;
     
 /**
  * Updates air pollution icon, status and text.
@@ -158,14 +158,19 @@ function renderNeedle(context, angle, startPoint, endPoint, width, color) {
  * @param {string} text - the text to be placed
  * @param {number} x - the x-coordinate of the text
  * @param {number} y - the y-coordinate of the text
+ * @param {object} options - additional options
  */
-function renderText(context, text, x, y) {
+function renderText(context, text, x, y, options) {
+	options = options || {};
+	options.font = options.font || '25px runmageddon';
+	
     context.save();
     context.beginPath();
-    context.font = "25px Courier";
+    context.font = options.font;
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillStyle = txtColor;
+//    context.fillStyle = 'hsl(0, 100%, 40%)';//red
+    context.fillStyle = 'hsl(0, 0%, 60%)';
     context.fillText(text, x, y);
     context.closePath();
     context.restore();
@@ -270,7 +275,7 @@ function drawWatchSunrise() {
 	        		
     				//sun rises
 		        	options.startAngle = Math.PI * twilight.start / 12 - Math.PI / 2;
-		        	options.endAngle = Math.PI * (sunrise - 3/60) / 12 - Math.PI / 2;
+		        	options.endAngle = Math.PI * (sunrise - 5/60) / 12 - Math.PI / 2;
 		        	drawAngleGradient(ctxSunrise, options);
 		        	
     				//sun shine
@@ -283,7 +288,7 @@ function drawWatchSunrise() {
     				//sun setting
 		        	options.startColor = sunlight;
     			    options.endColor = [0, 0, 0, 1.0];
-		        	options.startAngle = Math.PI * (sunset + 3/60) / 12 - Math.PI / 2;
+		        	options.startAngle = Math.PI * (sunset + 5/60) / 12 - Math.PI / 2;
 		        	options.endAngle = Math.PI * twilight.end / 12 - Math.PI / 2;
 		        	drawAngleGradient(ctxSunrise, options);
 		        	
@@ -332,7 +337,8 @@ function drawWatchLayout() {
 				ctxLayout, 
 				j, 
 				Math.sin(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius, 
-				Math.cos(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius
+				Math.cos(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius,
+				{font: '20px runmageddon'}
 			);
     	}
     	else {
@@ -377,10 +383,21 @@ function drawWatchContent() {
     renderCircle(ctxContent, center, 2, bgDColor);
 
     // Draw the text for time
-    renderText(ctxContent, (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second, center.x, center.y - 25 + watchRadius * 0.5);
+    renderText(
+		ctxContent,
+		(hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second,
+		center.x,
+		center.y + watchRadius * 0.5 - 15,
+		{font: '35px runmageddon'}
+	);
     
     // Draw the text for date
-    renderText(ctxContent, datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(), center.x, center.y + watchRadius * 0.5);
+    renderText(
+		ctxContent,
+		datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(),
+		center.x,
+		center.y + watchRadius * 0.5 + 10
+	);
 }
 
 /**
@@ -431,11 +448,10 @@ function toggleElement(element1, element2) {
 
         watchRadius = canvasLayout.width / 2;
 
-        battery = navigator.battery || navigator.battery || navigator.webkitBattery || navigator.mozBattery;
+        battery = navigator.battery || navigator.webkitBattery || navigator.mozBattery;
         
-        bgLColor = '#c4c4c4';
-        bgDColor = '#454545';
-        txtColor = '#999';
+        bgLColor = 'hsl(0, 0%, 77%)';
+        bgDColor = 'hsl(0, 0%, 27%)';
     	
     	AirlylastUpdate = new Date(2018, 5, 18, 0, 0, 0, 0);
     }
