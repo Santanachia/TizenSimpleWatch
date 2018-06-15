@@ -62,10 +62,11 @@ function updateAirPolution() {
 		
 		    xmlHttp.send();
         }, function(error){
+        	console.error('geolocation error');
         	console.log(error);
-        }, {maximumAge: 60000});
+        }, {maximumAge: 1000 * 60 * 15}); //GPS data yanger than 15 minutes
     }
-	else if(AirlylastUpdate.getTime() + 60*60*1000 < now.getTime()) {
+	else if(AirlylastUpdate.getTime() + 60 * 60 * 1000 < now.getTime()) {
 		document.querySelector("#air-leaf").style.fill = 'black';
 		document.querySelector("#air-text").innerHTML = 'N/A';
 	}
@@ -157,16 +158,15 @@ function renderNeedle(context, angle, startPoint, endPoint, width, color) {
  * @param {string} text - the text to be placed
  * @param {number} x - the x-coordinate of the text
  * @param {number} y - the y-coordinate of the text
- * @param {number} wr - 
  */
-function renderText(context, text, x, y, wr) {
+function renderText(context, text, x, y) {
     context.save();
     context.beginPath();
     context.font = "25px Courier";
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillStyle = txtColor;
-    context.fillText(text, x, y + wr);
+    context.fillText(text, x, y);
     context.closePath();
     context.restore();
 }
@@ -195,7 +195,6 @@ function mixColors(color1, color2, t){
  * @param options
  */
 function drawAngleGradient(ctx, options){
-	console.log(options)
 	var delta = options.endAngle - options.startAngle;
 	for(var angle = options.startAngle; angle < options.endAngle; angle += options.angleStep){
 		var t = (angle - options.startAngle) / delta;
@@ -220,11 +219,9 @@ function drawWatchSunrise() {
     // Clear canvas
     ctxSunrise.clearRect(0, 0, ctxSunrise.canvas.width, ctxSunrise.canvas.height);
     
-//	if (navigator.geolocation) {
-//        navigator.geolocation.getCurrentPosition(function(position){
+	if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position){
 		    var xmlHttp = new XMLHttpRequest();
-		    
-		    var position = {coords: {latitude:51, longitude:21}};
 		
 		    xmlHttp.open('GET', 'https://api.sunrise-sunset.org/json?lat=' + position.coords.latitude + '&lng=' + position.coords.longitude + '&formatted=0');
 		    xmlHttp.onreadystatechange = function() {
@@ -269,6 +266,8 @@ function drawWatchSunrise() {
 		    		sunrise = 0 === sunrise ? 0 : sunrise.getHours() + sunrise.getMinutes() / 60 + sunrise.getSeconds() / 3600;
     				sunset = 0 === sunset ? 0 : sunset.getHours() + sunset.getMinutes() / 60 + sunset.getSeconds() / 3600;
 		        	
+	        		ctxSunrise.save();
+	        		
     				//sun rises
 		        	options.startAngle = Math.PI * twilight.start / 12 - Math.PI / 2;
 		        	options.endAngle = Math.PI * (sunrise - 3/60) / 12 - Math.PI / 2;
@@ -288,12 +287,12 @@ function drawWatchSunrise() {
 		        	options.endAngle = Math.PI * twilight.end / 12 - Math.PI / 2;
 		        	drawAngleGradient(ctxSunrise, options);
 		        	
-	        		ctxSunrise.save();
 	        		ctxSunrise.beginPath();
 	        		ctxSunrise.fillStyle = 'hsl(0, 0%, 0%)';
-	        		ctxSunrise.arc(center.x, center.y, watchRadius * .95, 0, 2 * Math.PI);
+	        		ctxSunrise.arc(center.x, center.y, watchRadius * 0.95, 0, 2 * Math.PI);
 	        		ctxSunrise.fill();
 	        		ctxSunrise.closePath();
+	        		
 	        		ctxSunrise.restore();
 	        		
 		        }
@@ -304,10 +303,11 @@ function drawWatchSunrise() {
 		    };
 		
 		    xmlHttp.send();
-//        }, function(error){
-//        	console.log(error);
-//        }, {maximumAge: 60000});
-//    }
+        }, function(error){
+		    console.error('geolocation error');
+        	console.log(error);
+        }, {maximumAge: 1000 * 60 * 60}); //GPS data yanger than 1 hour
+    }
 }
 
 /**
@@ -325,13 +325,19 @@ function drawWatchLayout() {
         renderNeedle(ctxLayout, (i - 15) * (Math.PI * 2) / 60, 0.95, 1.0, 1, bgLColor);
     }
 
-//    // 12 unit divider
-//    for (var j = 1; j <= 12; j++) {
-//        renderNeedle(ctxLayout, (j - 3) * (Math.PI * 2) / 12, 0.7, 0.945, 10, bgLColor);
-//    }
     // 24 unit divider
-    for (var j = 1; j <= 24; j++) {
-        renderNeedle(ctxLayout, (j - 3) * (Math.PI * 2) / 24, 0.85, 0.945, 5, bgLColor);
+    for (var j = 0; j < 24; j++) {
+    	if (0 === j % 3) {
+    		renderText(
+				ctxLayout, 
+				j, 
+				Math.sin(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius, 
+				Math.cos(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius
+			);
+    	}
+    	else {
+    		renderNeedle(ctxLayout, (j - 3) * (Math.PI * 2) / 24, 0.85, 0.945, 5, bgLColor);
+    	}
     }
 }
 
@@ -349,7 +355,6 @@ function drawWatchContent() {
     ctxContent.clearRect(0, 0, ctxContent.canvas.width, ctxContent.canvas.height);
 
     // Draw the hour needle
-//    renderNeedle(ctxContent, Math.PI * (((hour + minute / 60) / 6) - 0.5), 0, 0.50, 3, bgDColor);
     renderNeedle(ctxContent, Math.PI * (((hour + minute / 60) / 12) - 0.5), 0, 0.50, 3, bgDColor);
 
     // Draw the minute needle
@@ -372,10 +377,10 @@ function drawWatchContent() {
     renderCircle(ctxContent, center, 2, bgDColor);
 
     // Draw the text for time
-    renderText(ctxContent, (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second, center.x, center.y - 25, watchRadius * 0.5);
+    renderText(ctxContent, (hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second, center.x, center.y - 25 + watchRadius * 0.5);
     
     // Draw the text for date
-    renderText(ctxContent, datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(), center.x, center.y, watchRadius * 0.5);
+    renderText(ctxContent, datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(), center.x, center.y + watchRadius * 0.5);
 }
 
 /**
@@ -489,7 +494,7 @@ function toggleElement(element1, element2) {
         setInterval(function() {
         	drawWatchSunrise();
         	updateAirPolution();
-        }, 1000*60);
+        }, 1000 * 60);
     }
 
     window.onload = init;
