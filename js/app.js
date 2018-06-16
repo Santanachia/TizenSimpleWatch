@@ -1,5 +1,6 @@
 
-var	battery, AirlylastUpdate;
+var	battery, AirlyLastUpdate;
+var sunset;
 var ctxLayout, ctxContent, ctxSunrise,
 	center, watchRadius,
 	bgLColor, bgDColor;
@@ -52,7 +53,7 @@ function updateAirPolution() {
 				        airPollutionInform = JSON.parse(xmlHttp.responseText);
 		            document.querySelector("#air-leaf").style.fill = ARR_COLOR[airPollutionInform.pollutionLevel];
 		            document.querySelector("#air-text").innerHTML = Math.round(airPollutionInform.airQualityIndex) + ' CAQI';
-		            AirlylastUpdate = new Date();
+		            AirlyLastUpdate = new Date();
 		        }
 		        else {
 		        	console.error('connection error');
@@ -66,7 +67,7 @@ function updateAirPolution() {
         	console.log(error);
         }, {maximumAge: 1000 * 60 * 15}); //GPS data yanger than 15 minutes
     }
-	else if(AirlylastUpdate.getTime() + 60 * 60 * 1000 < now.getTime()) {
+	else if(AirlyLastUpdate.getTime() + 60 * 60 * 1000 < now.getTime()) {
 		document.querySelector("#air-leaf").style.fill = 'black';
 		document.querySelector("#air-text").innerHTML = 'N/A';
 	}
@@ -162,7 +163,7 @@ function renderNeedle(context, angle, startPoint, endPoint, width, color) {
  */
 function renderText(context, text, x, y, options) {
 	options = options || {};
-	options.font = options.font || '25px runmageddon';
+	options.font = options.font || '30px runmageddon';
 	
     context.save();
     context.beginPath();
@@ -219,6 +220,11 @@ function drawAngleGradient(ctx, options){
  * @private
  */
 function drawWatchSunrise() {
+	
+	if (sunset > tizen.time.getCurrentDateTime()) {
+		return;
+	}
+	
 	var sunlight = [255, 255, 224, 0.25];
 
     // Clear canvas
@@ -244,8 +250,8 @@ function drawWatchSunrise() {
 	        			    angleStep: 0.001
 	        			},
 	        			twilight = {start: 0, end: 0},
-	        			sunrise = new Date(response.results.sunrise),
-	        			sunset = new Date(response.results.sunset);
+	        			sunrise = new Date(response.results.sunrise);
+	        		sunset = new Date(response.results.sunset);
 		        	
 		        	if ("1970-01-01T00:00:01+00:00" !== response.results.astronomical_twilight_begin) {
 		        		twilight.start = new Date(response.results.astronomical_twilight_begin);
@@ -338,7 +344,7 @@ function drawWatchLayout() {
 				j, 
 				Math.sin(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius, 
 				Math.cos(Math.PI * (12 - j) / 12) * (watchRadius * 0.85) + watchRadius,
-				{font: '20px runmageddon'}
+				{font: '25px runmageddon'}
 			);
     	}
     	else {
@@ -388,7 +394,7 @@ function drawWatchContent() {
 		(hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second,
 		center.x,
 		center.y + watchRadius * 0.5 - 15,
-		{font: '35px runmageddon'}
+		{font: '45px runmageddon'}
 	);
     
     // Draw the text for date
@@ -396,7 +402,7 @@ function drawWatchContent() {
 		ctxContent,
 		datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(),
 		center.x,
-		center.y + watchRadius * 0.5 + 10
+		center.y + watchRadius * 0.5 + 15
 	);
 }
 
@@ -453,7 +459,8 @@ function toggleElement(element1, element2) {
         bgLColor = 'hsl(0, 0%, 77%)';
         bgDColor = 'hsl(0, 0%, 27%)';
     	
-    	AirlylastUpdate = new Date(2018, 5, 18, 0, 0, 0, 0);
+    	AirlyLastUpdate = new Date(2018, 5, 18, 0, 0, 0, 0);
+    	SunriseLastUpdate = new Date(2018, 5, 18, 0, 0, 0, 0);
     }
 
     /**
