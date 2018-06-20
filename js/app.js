@@ -48,8 +48,9 @@ function updateAirPolution() {
 		    xmlHttp.onreadystatechange = function() {
 		        // Checks responseXML isn't empty
 		        if (xmlHttp.response) {
-		        	var ARR_COLOR = ['transparent', '#0c0', '#6c0', '#ff0', '#f90', 'red', 'brown'],
+		        	var ARR_COLOR = ['transparent', 'hsl(120, 100%, 30%)', 'hsl(90, 100%, 30%)', 'hsl(60, 100%, 40%)', 'hsl(36, 100%, 40%)', 'hsl(0, 100%, 40%)', 'hsl(0, 59%, 31%)'],
 				        airPollutionInform = JSON.parse(xmlHttp.responseText);
+		        	document.querySelector("#air-leaf").style.display = 'block';
 		            document.querySelector("#air-leaf").style.fill = ARR_COLOR[airPollutionInform.pollutionLevel];
 		            document.querySelector("#air-text").innerHTML = Math.round(airPollutionInform.airQualityIndex) + ' CAQI';
 		            AirlyLastUpdate = new Date();
@@ -67,7 +68,7 @@ function updateAirPolution() {
         }, {maximumAge: 1000 * 60 * 15}); //GPS data yanger than 15 minutes
     }
 	else if(AirlyLastUpdate.getTime() + 60 * 60 * 1000 < now.getTime()) {
-		document.querySelector("#air-leaf").style.fill = 'black';
+		document.querySelector("#air-leaf").style.display = 'none';
 		document.querySelector("#air-text").innerHTML = 'N/A';
 	}
 			
@@ -392,8 +393,8 @@ function drawWatchContent() {
 		ctxContent,
 		(hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second,
 		center.x,
-		center.y + watchRadius * 0.5 - 15,
-		{font: '45px runmageddon'}
+		center.y + watchRadius * 0.5 - 35,
+		{font: '60px runmageddon'}
 	);
     
     // Draw the text for date
@@ -401,7 +402,8 @@ function drawWatchContent() {
 		ctxContent,
 		datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(),
 		center.x,
-		center.y + watchRadius * 0.5 + 15
+		center.y + watchRadius * 0.5 + 10,
+		{font: '40px runmageddon'}
 	);
 }
 
