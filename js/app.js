@@ -1,5 +1,6 @@
 
-var	battery, AirlyLastUpdate;
+var	battery, AirlyLastUpdate, ambient;
+var contentInterval, polutionInterval;
 var ctxLayout, ctxContent, ctxSunrise,
 	center, watchRadius,
 	bgLColor, bgDColor;
@@ -13,9 +14,6 @@ function updateAirPolution() {
 	
 	if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position){
-		    /**
-		     * xmlHttp - XMLHttpRequest object for get information about air pollution
-		     */
 		    var xmlHttp = new XMLHttpRequest();
 		
 		    /**
@@ -46,7 +44,6 @@ function updateAirPolution() {
 		    xmlHttp.open('GET', 'https://airapi.airly.eu/v1/nearestSensor/measurements?latitude=' + position.coords.latitude + '&longitude=' + position.coords.longitude + '&maxDistance=1000');
 		    xmlHttp.setRequestHeader('apikey', 'wfxBXm5iQvmM5S3NaQ69PFDqfQ0Yfm91');
 		    xmlHttp.onreadystatechange = function() {
-		        // Checks responseXML isn't empty
 		        if (xmlHttp.response) {
 		        	var ARR_COLOR = ['transparent', 'hsl(120, 100%, 30%)', 'hsl(90, 100%, 30%)', 'hsl(60, 100%, 40%)', 'hsl(36, 100%, 40%)', 'hsl(0, 100%, 40%)', 'hsl(0, 59%, 31%)'],
 				        airPollutionInform = JSON.parse(xmlHttp.responseText);
@@ -375,15 +372,17 @@ function drawWatchContent() {
     // Draw the minute/hour circle
     renderCircle(ctxContent, center, 8, bgDColor);
 
-    // Draw the second needle
-    ctxContent.shadowOffsetX = 4;
-    ctxContent.shadowOffsetY = 4;
-    renderNeedle(ctxContent, Math.PI * ((second / 30) - 0.5), -0.10, 0.85, 1, bgLColor);
-
-    // Draw the second circle
-    ctxContent.shadowOffsetX = 0;
-    ctxContent.shadowOffsetY = 0;
-    renderCircle(ctxContent, center, 5, bgLColor);
+    if (!ambient) {
+	    // Draw the second needle
+	    ctxContent.shadowOffsetX = 4;
+	    ctxContent.shadowOffsetY = 4;
+	    renderNeedle(ctxContent, Math.PI * ((second / 30) - 0.5), -0.10, 0.85, 1, bgLColor);
+	
+	    // Draw the second circle
+	    ctxContent.shadowOffsetX = 0;
+	    ctxContent.shadowOffsetY = 0;
+	    renderCircle(ctxContent, center, 5, bgLColor);
+    }
 
     // Draw the center circle
     renderCircle(ctxContent, center, 2, bgDColor);
@@ -391,7 +390,7 @@ function drawWatchContent() {
     // Draw the text for time
     renderText(
 		ctxContent,
-		(hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + ':' + (second < 10 ? '0' : '') + second,
+		(hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + (ambient ? '' : ':' + (second < 10 ? '0' : '') + second),
 		center.x,
 		center.y + watchRadius * 0.5 - 35,
 		{font: '60px runmageddon'}
@@ -461,6 +460,8 @@ function toggleElement(element1, element2) {
         bgDColor = 'hsl(0, 0%, 27%)';
     	
     	AirlyLastUpdate = new Date(2018, 5, 18, 0, 0, 0, 0);
+    	
+    	ambient = false;
     }
 
     /**
@@ -478,8 +479,8 @@ function toggleElement(element1, element2) {
 
         // Adds event listeners to update battery state when the battery is changed.
         battery.addEventListener("chargingchange", updateBattery);
-        battery.addEventListener("chargingtimechange", updateBattery);
-        battery.addEventListener("dischargingtimechange", updateBattery);
+//        battery.addEventListener("chargingtimechange", updateBattery);
+//        battery.addEventListener("dischargingtimechange", updateBattery);
         battery.addEventListener("levelchange", updateBattery);
 
         // Adds event listeners to change displaying child element when the battery element is clicked.
@@ -490,6 +491,29 @@ function toggleElement(element1, element2) {
         // Adds event listeners to change displaying child element when the air pollution element is clicked.
         document.querySelector("#body-air").addEventListener("click", function() {
             toggleElement("#air-icon", "#air-text");
+        });
+
+        // Add an eventListener for ambientmodechanged
+        window.addEventListener("ambientmodechanged", function(e) {
+            if (e.detail.ambientMode === true) {
+                ambient = true;
+                clearInterval(contentInterval);
+                clearInterval(polutionInterval);
+		        contentInterval = setInterval(function() {
+		            drawWatchContent();
+		        }, 1000 * 60);
+            } else {
+                ambient = false;
+                clearInterval(contentInterval);
+                clearInterval(polutionInterval);
+		        contentInterval = setInterval(function() {
+		            drawWatchContent();
+		        }, 1000);
+		        polutionInterval = setInterval(function() {
+		        	sunrise.draw();
+		        	updateAirPolution();
+		        }, 1000 * 60);
+            }
         });
     }
 
@@ -509,12 +533,12 @@ function toggleElement(element1, element2) {
         updateBattery();
 
         // Update the content of the watch every second
-        setInterval(function() {
+        contentInterval = setInterval(function() {
             drawWatchContent();
         }, 1000);
 
         // Update air pollution info every minute
-        setInterval(function() {
+        polutionInterval = setInterval(function() {
         	sunrise.draw();
         	updateAirPolution();
         }, 1000 * 60);

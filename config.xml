@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/SWatch" version="1.2.0" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/SWatch" version="1.3.0" height="360" width="360" viewmodes="fullscreen">
     <access origin="https://airapi.airly.eu" subdomains="true"></access>
     <access origin="https://api.sunrise-sunset.org" subdomains="true"></access>
     <tizen:application id="WJR3SWhZki.SWatch" package="WJR3SWhZki" required_version="3.0" ambient_support="disable"/>
     <author email="santanachia@gmail.com">Marcin Bielecki</author>
     <tizen:category name="http://tizen.org/category/wearable_clock"/>
     <content src="index.html"/>
-    <description xml:lang="pl-pl">Zegarek z danymi o zanieczyszczeniu powietrza</description>
+    <description xml:lang="pl-pl">Zegarek z danymi o zanieczyszczeniu powietrza w Polsce</description>
+    <description xml:lang="en-us">Watch with polution data in Poland</description>
     <feature name="tizen.org/feature/location.gps"/>
     <feature name="tizen.org/feature/screen.size.normal.360.360"/>
     <icon src="icon.png"/>
-    <name xml:lang="en-us">Airly Watch</name>
-    <name xml:lang="pl-pl">Zegarek Airly</name>
-    <name>SWatch</name>
+    <name xml:lang="en-us">Gear S3 Airly Watch</name>
+    <name xml:lang="pl-pl">Zegarek Airly dla Gear S3</name>
+    <name>Gear S3 Airly Watch</name>
+    <tizen:privilege name="http://tizen.org/privilege/alarm"/>
     <tizen:privilege name="http://tizen.org/privilege/location"/>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/telephony"/>
