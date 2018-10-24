@@ -73,7 +73,7 @@ html, body {
 }
 
 #battery-icon {
-    top: 122px;
+    top: 100px;
     left: 208px;
     z-index: 0;
 }
@@ -85,12 +85,7 @@ html, body {
 }
 
 #battery-icon-e {display: block}
-#battery-icon-0 {display: none}
-#battery-icon-1 {display: none}
-#battery-icon-2 {display: none}
-#battery-icon-3 {display: none}
-#battery-icon-4 {display: none}
-#battery-icon-c {display: none}
+#battery-icon-0, #battery-icon-1, #battery-icon-2, #battery-icon-3, #battery-icon-4, #battery-icon-c {display: none}
 
 /*-------AIR-------*/
 
@@ -99,8 +94,8 @@ html, body {
 }
 
 #air-icon {
-    top: 122px;
-    left: 80px;
+    top: 100px;
+    left: 90px;
     z-index: 0;
 }
 

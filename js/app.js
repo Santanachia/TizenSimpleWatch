@@ -1,5 +1,7 @@
+"use strict"
 
-var	battery, AirlyLastUpdate, ambient;
+var	battery, ambient;
+var AirlyLastUpdate, AirlyIndexName;
 var contentInterval, polutionInterval;
 var ctxLayout, ctxContent, ctxSunrise,
 	center, watchRadius,
@@ -10,46 +12,25 @@ var ctxLayout, ctxContent, ctxSunrise,
  * @private
  */
 function updateAirPolution() {
+	
 	var now = new Date();
 	
 	if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position){
-		    var xmlHttp = new XMLHttpRequest();
+        	
+    		var xmlHttp = new XMLHttpRequest();
+    		
+    		var metaDataArray = tizen.application.getAppMetaData(null);
+    		console.log(metaDataArray);
 		
-		    /**
-		     * NearestSensorMeasurements {
-				  address (Address, optional): Sensor's address,
-				  airQualityIndex (number): Common Air Quality Index (CAQI). http://www.airqualitynow.eu/about_indices_definition.php,
-				  distance (number, optional): Distance,
-				  id (integer, optional): ID,
-				  location (Coordinates, optional): Location,
-				  measurementTime (string, optional): MeasurementTime,
-				  name (string, optional): Name,
-				  pm10 (number, optional): PM10,
-				  pm25 (number, optional): PM2.5,
-				  pollutionLevel (integer, optional): Pollution level based on CAQI value. Possible values: [0 to 6]. 0 - unknown, 1 - best air, 6 - worst.,
-				  vendor (string, optional): Vendor
-				}
-				Address {
-				  country (string, optional),
-				  locality (string, optional),
-				  route (string, optional),
-				  streetNumber (string, optional)
-				}
-				Coordinates {
-				  latitude (number): Latitude component of location.,
-				  longitude (number): Longitude component of location.
-				}
-		     */
-		    xmlHttp.open('GET', 'https://airapi.airly.eu/v1/nearestSensor/measurements?latitude=' + position.coords.latitude + '&longitude=' + position.coords.longitude + '&maxDistance=1000');
+		    xmlHttp.open('GET', 'https://airapi.airly.eu/v2/measurements/point?indexType=' + AirlyIndexName + '&lat=' + position.coords.latitude + '&lng=' + position.coords.longitude);
 		    xmlHttp.setRequestHeader('apikey', 'wfxBXm5iQvmM5S3NaQ69PFDqfQ0Yfm91');
 		    xmlHttp.onreadystatechange = function() {
 		        if (xmlHttp.response) {
-		        	var ARR_COLOR = ['transparent', 'hsl(120, 100%, 30%)', 'hsl(90, 100%, 30%)', 'hsl(60, 100%, 40%)', 'hsl(36, 100%, 40%)', 'hsl(0, 100%, 40%)', 'hsl(0, 59%, 31%)'],
-				        airPollutionInform = JSON.parse(xmlHttp.responseText);
+		        	let airPollutionInform = JSON.parse(xmlHttp.responseText);
 		        	document.querySelector("#air-leaf").style.display = 'block';
-		            document.querySelector("#air-leaf").style.fill = ARR_COLOR[airPollutionInform.pollutionLevel];
-		            document.querySelector("#air-text").innerHTML = Math.round(airPollutionInform.airQualityIndex) + ' CAQI';
+		            document.querySelector("#air-leaf").style.fill = airPollutionInform.current.indexes[0].color;
+		            document.querySelector("#air-text").innerHTML = airPollutionInform.current.indexes[0].value + ' ' + AirlyIndexName;
 		            AirlyLastUpdate = new Date();
 		        }
 		        else {
@@ -392,17 +373,17 @@ function drawWatchContent() {
 		ctxContent,
 		(hour < 10 ? '0' : '') + hour + ':' + (minute < 10 ? '0' : '') + minute + (ambient ? '' : ':' + (second < 10 ? '0' : '') + second),
 		center.x,
-		center.y + watchRadius * 0.5 - 35,
-		{font: '60px runmageddon'}
+		center.y + 35,
+		{font: '70px runmageddon'}
 	);
     
     // Draw the text for date
     renderText(
 		ctxContent,
-		datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + datetime.getDate(),
+		datetime.getFullYear() + '.' + ((datetime.getMonth() + 1 < 10 ? '0' : '') + (datetime.getMonth() + 1)) + '.' + (datetime.getDate() < 10 ? '0' : '') + datetime.getDate(),
 		center.x,
-		center.y + watchRadius * 0.5 + 10,
-		{font: '40px runmageddon'}
+		center.y + 90,
+		{font: '50px runmageddon'}
 	);
 }
 
@@ -460,6 +441,7 @@ function toggleElement(element1, element2) {
         bgDColor = 'hsl(0, 0%, 27%)';
     	
     	AirlyLastUpdate = new Date(2018, 5, 18, 0, 0, 0, 0);
+    	AirlyIndexName ='PIJP'
     	
     	ambient = false;
     }
@@ -512,7 +494,7 @@ function toggleElement(element1, element2) {
 		        polutionInterval = setInterval(function() {
 		        	sunrise.draw();
 		        	updateAirPolution();
-		        }, 1000 * 60);
+		        }, 1000 * 60 * 15);
             }
         });
     }
@@ -541,7 +523,7 @@ function toggleElement(element1, element2) {
         polutionInterval = setInterval(function() {
         	sunrise.draw();
         	updateAirPolution();
-        }, 1000 * 60);
+        }, 1000 * 60 * 5);
     }
 
     window.onload = init;
